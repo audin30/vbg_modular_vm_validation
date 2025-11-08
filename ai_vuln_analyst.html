@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AI Vulnerability Analyst</title>
+
+  <!-- Load Tailwind CSS -->
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Load Inter Font -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+   
+
+  <script>
+
+    tailwind.config = {
+
+      theme: {
+
+        extend: {
+
+          fontFamily: {
+
+            sans: ['Inter', 'sans-serif'],
+
+          },
+
+        },
+
+      },
+
+    }
+
+  </script>
+
+</head>
+
+<body class="bg-gray-50 font-sans">
+
+
+
+  <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+
+       
+
+      <!-- Header -->
+
+      <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+
+        <div>
+
+          <h1 class="text-2xl font-bold text-gray-900">AI Vulnerability & Risk Analyst</h1>
+
+          <p class="text-md text-gray-600 mt-1">Correlating Enterprise Data for True Risk Prioritization</p>
+
+        </div>
+
+        <button id="analyzeButton" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center shadow-sm">
+
+          <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c.251.023.506.05.764.084a3 3 0 012.686 2.686c.034.258.061.513.084.764v5.714a2.25 2.25 0 00.659 1.591L15 14.5M9.75 3.104C8.024 3.289 6.312 4.01 5 5.234M15 14.5c.53 1.023.954 2.121 1.226 3.266a2.25 2.25 0 003.55 1.44c.32-.32.6-.702.818-1.124a2.25 2.25 0 00-1.44-3.55c-1.145-.272-2.243-.696-3.266-1.226M15 14.5L11.25 18M5 5.234C3.71 6.312 3.289 8.024 3.104 9.75m11.141 9.496c-1.726.185-3.438.906-4.66 2.13M5 5.234L8.75 9M5 5.234L1.5 8.75m3.5 14.5L8.75 15M5 5.234" />
+
+          </svg>
+
+          Run Analysis
+
+        </button>
+
+      </div>
+
+
+
+      <!-- Output Section -->
+
+      <div class="p-6">
+
+        <!-- Loading Indicator -->
+
+        <div id="loading" class="hidden items-center justify-center p-8">
+
+          <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+
+          </svg>
+
+          <span class="text-lg font-medium text-gray-700">Correlating data and consulting the AI analyst...</span>
+
+        </div>
+
+
+
+        <!-- Error Message Box -->
+
+        <div id="error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert">
+
+          <strong class="font-bold">Error:</strong>
+
+          <span class="block sm:inline" id="errorMessage"></span>
+
+        </div>
+
+
+
+        <!-- Output Table (Initially Hidden) -->
+
+        <div id="table-container" class="hidden">
+
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">Prioritized Risk Analysis</h2>
+
+          <div class="overflow-x-auto shadow-sm border border-gray-200 rounded-lg">
+
+            <table class="min-w-full divide-y divide-gray-200">
+
+              <thead class="bg-gray-50">
+
+                <tr>
+
+                  <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset</th>
+
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vulnerability</th>
+
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Risk Factors</th>
+
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Justification</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="table-body" class="bg-white divide-y divide-gray-200">
+
+                <!-- JS will build rows here -->
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <script>
+
+    document.getElementById('analyzeButton').addEventListener('click', runAnalysis);
+
+
+
+    // Helper function to create colored risk badges
+
+    function getRiskBadge(factor) {
+
+      let colorClasses = "bg-gray-100 text-gray-800"; // Default
+
+       
+
+      if (factor.toLowerCase().includes('internet')) {
+
+        colorClasses = "bg-red-100 text-red-800";
+
+      } else if (factor.toLowerCase().includes('production')) {
+
+        colorClasses = "bg-yellow-100 text-yellow-800";
+
+      } else if (factor.toLowerCase().includes('vt score')) {
+
+        colorClasses = "bg-purple-100 text-purple-800";
+
+      } else if (factor.toLowerCase().includes('cvss')) {
+
+        colorClasses = "bg-orange-100 text-orange-800";
+
+      }
+
+
+
+      return `<span class="inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${colorClasses}">${factor}</span>`;
+
+    }
+
+
+
+
+
+    async function runAnalysis() {
+
+      const loadingIndicator = document.getElementById('loading');
+
+      const tableContainer = document.getElementById('table-container');
+
+      const tableBody = document.getElementById('table-body');
+
+      const errorBox = document.getElementById('error');
+
+      const errorMessage = document.getElementById('errorMessage');
+
+      const analyzeButton = document.getElementById('analyzeButton');
+
+
+
+      // --- Reset UI ---
+
+      loadingIndicator.classList.remove('hidden');
+
+      loadingIndicator.classList.add('flex');
+
+      tableContainer.classList.add('hidden');
+
+      errorBox.classList.add('hidden');
+
+      tableBody.innerHTML = ''; // Clear old table data
+
+      analyzeButton.disabled = true;
+
+      analyzeButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+
+
+      try {
+
+        // --- Call the Backend ---
+
+        const response = await fetch('http://127.0.0.1:5555/analyze');
+
+
+
+        if (!response.ok) {
+
+          const errData = await response.json();
+
+          throw new Error(errData.error || `Server responded with status ${response.status}`);
+
+        }
+
+
+
+        // The backend now returns a JSON array directly
+
+        const data = await response.json();
+
+
+
+        if (data.error) {
+
+          throw new Error(data.error);
+
+        }
+
+
+
+        if (!Array.isArray(data) || data.length === 0) {
+
+          // Handle the case where the LLM returns an empty list or
+
+          // the initial DB query returned no vulns
+
+          tableContainer.classList.remove('hidden');
+
+          tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No high-priority vulnerabilities were found matching the criteria.</td></tr>`;
+
+          return;
+
+        }
+
+
+
+        // --- Build the Table ---
+
+        data.forEach(item => {
+
+          const row = document.createElement('tr');
+
+           
+
+          // Priority
+
+          let priorityCell = document.createElement('td');
+
+          priorityCell.className = 'px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900';
+
+          let priorityColor = "text-gray-500";
+
+          if(item.priority === 1) priorityColor = "text-red-600 font-bold";
+
+          if(item.priority === 2) priorityColor = "text-yellow-600 font-semibold";
+
+          if(item.priority === 3) priorityColor = "text-blue-600 font-medium";
+
+          priorityCell.innerHTML = `<span class="text-lg ${priorityColor}">${item.priority}</span>`;
+
+           
+
+          // Asset
+
+          let assetCell = document.createElement('td');
+
+          assetCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-800';
+
+          assetCell.innerHTML = `<div class="font-medium">${item.asset_name}</div><div class="text-gray-500">${item.cve} (CVSS: ${item.cvss_score || 'N/A'})</div>`;
+
+
+
+          // Vulnerability (simplified, as it's in the asset cell now)
+
+          let vulnCell = document.createElement('td');
+
+          vulnCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
+
+          vulnCell.textContent = item.cve;
+
+
+
+          // Risk Factors
+
+          let factorsCell = document.createElement('td');
+
+          factorsCell.className = 'px-6 py-4 whitespace-nowrap';
+
+          factorsCell.innerHTML = (item.risk_factors || [])
+
+            .map(factor => getRiskBadge(factor))
+
+            .join(' ');
+
+           
+
+          // Justification
+
+          let justCell = document.createElement('td');
+
+          justCell.className = 'px-6 py-4 text-sm text-gray-600';
+
+          justCell.style.minWidth = '300px';
+
+          justCell.textContent = item.justification;
+
+
+
+          // Build row
+
+          row.appendChild(priorityCell);
+
+          row.appendChild(assetCell);
+
+          row.appendChild(vulnCell); // Note: I'll hide this column for a cleaner UI
+
+          row.appendChild(factorsCell);
+
+          row.appendChild(justCell);
+
+           
+
+          tableBody.appendChild(row);
+
+        });
+
+
+
+        // --- Final UI update ---
+
+        // I'm hiding the 'Vulnerability' column as it's redundant with the 'Asset' cell.
+
+        // This makes the table cleaner.
+
+        document.querySelectorAll('th:nth-child(3), td:nth-child(3)').forEach(el => el.classList.add('hidden'));
+
+         
+
+        tableContainer.classList.remove('hidden');
+
+
+
+      } catch (error) {
+
+        console.error("Analysis Error:", error);
+
+        errorMessage.textContent = error.message;
+
+        errorBox.classList.remove('hidden');
+
+      } finally {
+
+        // --- Restore UI ---
+
+        loadingIndicator.classList.add('hidden');
+
+        loadingIndicator.classList.remove('flex');
+
+        analyzeButton.disabled = false;
+
+        analyzeButton.classList.remove('opacity-50', 'cursor-not-allowed');
+
+      }
+
+    }
+
+  </script>
+
+
+
+</body>
+
+</html>

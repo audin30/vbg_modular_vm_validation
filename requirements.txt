@@ -1,0 +1,10 @@
+pytenable
+pan-os-python
+psycopg2-binary
+pandas
+requests
+flask
+flask-cors
+python-dotenv
+python-nmap
+Faker

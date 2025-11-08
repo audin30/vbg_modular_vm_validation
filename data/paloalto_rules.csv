@@ -1,0 +1,16 @@
+rule_name,source_address,dest_address,service_port,protocol,action,policy_source
+Allow-Internal-to-App-2,10.0.0.0/8|172.16.0.0/12|192.168.0.0/16,172.23.170.97/32,443,TCP,Allow,corp-firewall-01
+Allow-Internal-to-App-7,10.0.0.0/8|172.16.0.0/12|192.168.0.0/16,10.126.250.250/32,5432,TCP,Allow,corp-firewall-01
+Allow-Internal-to-App-10,10.0.0.0/8|172.16.0.0/12|192.168.0.0/16,108.9.195.127/32,5432,TCP,Allow,corp-firewall-01
+Allow-Internet-to-Public-12,0.0.0.0/0,209.8.162.146/32,3306,TCP,Allow,edge-firewall-01
+Allow-Internal-to-App-13,10.0.0.0/8|172.16.0.0/12|192.168.0.0/16,192.168.222.149/32,80,TCP,Allow,corp-firewall-01
+Allow-Internal-to-App-14,10.0.0.0/8|172.16.0.0/12|192.168.0.0/16,172.25.31.33/32,22,TCP,Allow,corp-firewall-01
+Allow-Internal-to-App-17,10.0.0.0/8|172.16.0.0/12|192.168.0.0/16,172.25.184.166/32,5432,TCP,Allow,corp-firewall-01
+Allow-Internet-to-Public-20,0.0.0.0/0,100.57.84.251/32,9200,TCP,Allow,edge-firewall-01
+Allow-Internet-to-Public-22,0.0.0.0/0,195.47.219.169/32,5432,TCP,Allow,edge-firewall-01
+Allow-Internal-to-App-25,10.0.0.0/8|172.16.0.0/12|192.168.0.0/16,215.97.243.202/32,5432,TCP,Allow,corp-firewall-01
+Allow-Internal-to-App-28,10.0.0.0/8|172.16.0.0/12|192.168.0.0/16,10.189.20.253/32,5432,TCP,Allow,corp-firewall-01
+Allow-Internet-to-Public-29,0.0.0.0/0,130.110.228.83/32,9200,TCP,Allow,edge-firewall-01
+Allow-Internet-to-Public-32,0.0.0.0/0,54.30.217.200/32,9200,TCP,Allow,edge-firewall-01
+Allow-Internal-to-App-35,10.0.0.0/8|172.16.0.0/12|192.168.0.0/16,10.88.101.240/32,9200,TCP,Allow,corp-firewall-01
+Default-Deny-All,0.0.0.0/0,0.0.0.0/0,0,TCP,Deny,corp-firewall
