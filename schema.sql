@@ -1,15 +1,32 @@
-/*
-This script deletes all existing tables and rebuilds the schema from scratch.
-All data will be lost.
-*/
+/* TOP OF schema.sql */
 
--- Drop tables in reverse order of dependency
+-- 1. DROP INDEXES (MUST BE FIRST)
+-- This removes index metadata that CASCADE sometimes leaves behind.
+DROP INDEX IF EXISTS idx_assets_ip;
+DROP INDEX IF EXISTS idx_assets_hostname;
+DROP INDEX IF EXISTS idx_vuln_asset_id;
+DROP INDEX IF EXISTS idx_vuln_cve;
+DROP INDEX IF EXISTS idx_vuln_cvss_score;
+DROP INDEX IF EXISTS idx_vuln_unique_combo;
+DROP INDEX IF EXISTS idx_fw_dest_address;
+DROP INDEX IF EXISTS idx_fw_source_address;
+DROP INDEX IF EXISTS idx_nmap_asset_id;
+DROP INDEX IF EXISTS idx_nmap_unique_scan;
+
+-- 2. DROP TABLES (NEXT)
+-- This cleans up the main tables.
 DROP TABLE IF EXISTS nmap_scan_results CASCADE;
 DROP TABLE IF EXISTS firewall_rules CASCADE;
 DROP TABLE IF EXISTS vulnerabilities CASCADE;
 DROP TABLE IF EXISTS assets CASCADE;
-DROP TABLE IF EXISTS cisa_kev CASCADE; -- NEW
+DROP TABLE IF EXISTS cisa_kev CASCADE; 
 
+/* ... CREATE TABLE assets starts here ... */
+/* ... all other CREATE TABLE and CREATE INDEX commands follow ... *//* ===================================================
+Table 1: assets
+Your central inventory. The single source of truth for all assets.
+===================================================
+*/
 /* ===================================================
 Table 1: assets
 Your central inventory. The single source of truth for all assets.
@@ -26,12 +43,21 @@ CREATE TABLE assets (
     is_public BOOLEAN DEFAULT false,
     vt_ip_score INTEGER,
     vt_domain_score INTEGER,
+    -- New columns for GreyNoise and combined last_seen timestamps
+    gn_classification TEXT, 
+    gn_last_seen TIMESTAMPTZ, 
     last_seen_phpipam TIMESTAMPTZ,
     last_seen_wiz TIMESTAMPTZ,
     last_seen_tenable TIMESTAMPTZ
 );
 
+-- FIX APPLIED HERE for the GiST error (assuming you haven't fixed it yet)
 CREATE INDEX idx_assets_ip ON assets USING GIST (ip_address inet_ops);
+CREATE INDEX idx_assets_hostname ON assets (hostname);
+
+/* ... rest of the schema follows ... */
+
+CREATE INDEX idx_assets_ip ON assets USING GIST (ip_address);
 CREATE INDEX idx_assets_hostname ON assets (hostname);
 
 /* ===================================================

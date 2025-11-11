@@ -4,27 +4,27 @@ import psycopg2.extras
 import json
 import re
 import nmap
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file # <-- Added send_file
 from flask_cors import CORS
 from dotenv import load_dotenv
 import requests
 import time
 from datetime import datetime, timezone
-import logging # <-- NEW: Import logging module
+import logging 
 
 # Load environment variables
 load_dotenv()
 
-# --- NEW: Configure basic logging ---
-# Set the log level (e.g., INFO, DEBUG) and format
+# Configure basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s')
-# ------------------------------------
 
 app = Flask(__name__)
-CORS(app)
+# FIX: Use the most permissive setting for testing across different IPs/ports
+CORS(app, resources={r"/*": {"origins": "*"}}) 
 
 # --- Database Connection ---
 def get_db_connection():
+    """Establishes and returns a connection to the PostgreSQL database."""
     try:
         conn = psycopg2.connect(
             dbname=os.environ.get("PG_DBNAME"),
@@ -35,28 +35,31 @@ def get_db_connection():
         )
         return conn
     except Exception as e:
-        # UPDATED: Use logging.error
         logging.error(f"Error: Unable to connect to the database. {e}")
         return None
 
-# --- Gemini API Call ---
+# --- Gemini API Call (UPDATED SCHEMA) ---
 def call_gemini_api(system_prompt, augmented_prompt, retry_count=3):
+    """Handles communication with the Gemini API with structured JSON output."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key: raise ValueError("GEMINI_API_KEY not set.")
     
-    # UPDATED: Use logging.info before API call
     logging.info("Calling Gemini API for risk analysis...")
     
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key={api_key}"
     headers = {'Content-Type': 'application/json'}
+    
+    # Required fields for LLM output and frontend linking
     json_schema = {
         "type": "ARRAY",
         "items": {
             "type": "OBJECT",
             "properties": {
                 "priority": {"type": "NUMBER"},
+                "asset_id": {"type": "STRING"},      
                 "asset_hostname": {"type": "STRING"},
                 "cve": {"type": "STRING"},
+                "vuln_port": {"type": "NUMBER"},     
                 "cvss_score": {"type": "NUMBER"},
                 "justification": {"type": "STRING"},
                 "recommendation": {"type": "STRING"}
@@ -73,15 +76,11 @@ def call_gemini_api(system_prompt, augmented_prompt, retry_count=3):
         try:
             response = requests.post(url, headers=headers, data=json.dumps(payload))
             response.raise_for_status()
-            
-            # UPDATED: Log successful response
             logging.info(f"Gemini API call successful after {i+1} attempt(s).")
-            
             raw_text = response.json()['candidates'][0]['content']['parts'][0]['text']
             clean_text = re.sub(r'^```json\s*|```\s*$', '', raw_text, flags=re.MULTILINE)
             return json.loads(clean_text)
         except Exception as e:
-            # UPDATED: Log the failed attempt
             logging.warning(f"Gemini API attempt {i+1} failed: {e}. Retrying in {delay}s.")
             if i == retry_count - 1: 
                 logging.error("Gemini API call failed permanently after retries.")
@@ -89,117 +88,32 @@ def call_gemini_api(system_prompt, augmented_prompt, retry_count=3):
             time.sleep(delay)
             delay *= 2
 
-# --- Dashboard Queries (No Change to Logic, but logging is now used) ---
-def get_dashboard_stats(conn):
-    stats = {}
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    try:
-        logging.info("Fetching dashboard statistics...")
-        # ... SQL queries ...
-        
-        cursor.execute("""
-            SELECT a.hostname, a.ip_address, v.cve, v.cvss_score, (ck.cve_id IS NOT NULL) as is_cisa_kev
-            FROM assets a JOIN vulnerabilities v ON a.asset_id = v.asset_id
-            LEFT JOIN cisa_kev ck ON v.cve = ck.cve_id
-            WHERE a.is_public = TRUE AND v.status = 'Open'
-            ORDER BY (ck.cve_id IS NOT NULL) DESC, v.cvss_score DESC LIMIT 5;
-        """)
-        stats['top_risks'] = cursor.fetchall()
-        
-        cursor.execute("""
-            SELECT hostname, ip_address, vt_ip_score, vt_domain_score FROM assets
-            WHERE vt_ip_score > 0 OR vt_domain_score > 0 ORDER BY GREATEST(vt_ip_score, vt_domain_score) DESC LIMIT 5;
-        """)
-        stats['vt_threats'] = cursor.fetchall()
-        
-        cursor.execute("""
-            SELECT a.owner, COUNT(v.vuln_id) as vuln_count FROM assets a JOIN vulnerabilities v ON a.asset_id = v.asset_id
-            WHERE v.status = 'Open' GROUP BY a.owner ORDER BY vuln_count DESC LIMIT 5;
-        """)
-        stats['owner_stats'] = cursor.fetchall()
-        
-        cursor.execute("SELECT COUNT(*) as count FROM assets;")
-        stats['total_assets'] = cursor.fetchone()['count']
-        
-        cursor.execute("SELECT COUNT(*) as count FROM vulnerabilities WHERE status='Open';")
-        stats['total_open_vulns'] = cursor.fetchone()['count']
-        
-        logging.info("Dashboard statistics fetched successfully.")
-    except Exception as e:
-        logging.error(f"Error fetching dashboard stats: {e}")
-        raise e
-    finally: 
-        cursor.close()
-    return stats
-
-def get_assets_by_owner(conn, owner_name):
-    # ... logic (add logging for start/success/error) ...
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    try:
-        logging.info(f"Fetching assets for owner: {owner_name}")
-        cursor.execute("""
-            SELECT a.asset_id, a.hostname, a.ip_address, a.environment, a.is_public,
-                COUNT(v.vuln_id) as open_vulns, MAX(v.cvss_score) as max_cvss
-            FROM assets a LEFT JOIN vulnerabilities v ON a.asset_id = v.asset_id AND v.status = 'Open'
-            WHERE a.owner = %s GROUP BY a.asset_id ORDER BY max_cvss DESC NULLS LAST, open_vulns DESC;
-        """, (owner_name,))
-        assets = cursor.fetchall()
-        logging.info(f"Found {len(assets)} assets for owner {owner_name}.")
-        return assets
-    except Exception as e:
-        logging.error(f"Error fetching assets by owner {owner_name}: {e}")
-        raise e
-    finally: 
-        cursor.close()
-
-# --- Analysis Helpers ---
-def fetch_top_vulnerabilities(conn):
+# --- Analysis Helper (USES CORRELATED VIEW) ---
+def fetch_correlated_risks(conn):
+    """
+    Fetches all correlated data directly from the correlated_vulnerability_risk view.
+    """
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        logging.info("Fetching top vulnerabilities for AI correlation...")
+        logging.info("Fetching correlated risk data from view...")
+        # Query the view directly—all correlation is pre-calculated!
         cursor.execute("""
-            SELECT a.asset_id, a.hostname, a.ip_address, a.environment, a.description, a.owner, a.is_public,
-                   a.vt_ip_score, a.vt_domain_score, v.cve, v.cvss_score, v.port AS vuln_port,
-                   nmap.status AS nmap_port_status, nmap.service_banner AS nmap_service_banner,
-                   (ck.cve_id IS NOT NULL) AS is_cisa_kev
-            FROM vulnerabilities v JOIN assets a ON v.asset_id = a.asset_id
-            LEFT JOIN cisa_kev ck ON v.cve = ck.cve_id
-            LEFT JOIN nmap_scan_results nmap ON a.asset_id = nmap.asset_id AND v.port = nmap.port AND v.protocol = nmap.protocol -- Added protocol match
-            WHERE v.cvss_score >= 4.0 AND v.status = 'Open'
-            ORDER BY is_cisa_kev DESC, v.cvss_score DESC, a.is_public DESC;
+            SELECT 
+                * FROM 
+                correlated_vulnerability_risk;
         """)
         res = cursor.fetchall()
-        logging.info(f"Found {len(res)} vulnerabilities for correlation.")
+        logging.info(f"Retrieved {len(res)} correlated risks.")
         return res
     except Exception as e:
-        logging.error(f"Error fetching vulnerabilities: {e}")
+        logging.error(f"Error fetching data from view: {e}")
         raise e
     finally:
         cursor.close()
 
-def find_firewall_exposure(conn, ip_address, port):
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    try:
-        cursor.execute("""
-            SELECT rule_name, source_address FROM firewall_rules
-            WHERE action = 'Allow' AND (service_port = %s OR service_port = 0)
-              AND %s::inet <<= ANY(dest_address);
-        """, (port, ip_address))
-        rules = cursor.fetchall()
-        cursor.close()
-        if not rules: return "Not Reachable (No 'Allow' rules found)"
-        exposure_rules = []
-        for rule in rules:
-            sources_str = [str(s) for s in rule['source_address']]
-            if '0.0.0.0/0' in sources_str: exposure_rules.append(f"INTERNET EXPOSED via rule '{rule['rule_name']}'")
-            else: exposure_rules.append(f"Internally exposed via rule '{rule['rule_name']}'")
-        return "; ".join(exposure_rules)
-    except Exception as e:
-        logging.error(f"Error checking firewall exposure for {ip_address}:{port}: {e}")
-        return "Error checking firewall rules"
-
-# --- Nmap Scan Function (Slightly improved logging) ---
+# --- Nmap Scan Function (No Change) ---
 def run_single_nmap_scan(ip, port):
+    """Runs an immediate Nmap scan for on-demand verification."""
     nm = nmap.PortScanner()
     try:
         logging.info(f"Starting on-demand scan for {ip}:{port}...")
@@ -215,7 +129,6 @@ def run_single_nmap_scan(ip, port):
             logging.info(f"Port {port} on {ip} is closed/filtered.")
             return {'status': 'closed', 'banner': None, 'name': None, 'version': None}
 
-        # UPDATED: Return separate fields for database saving
         status = tcp_info['state']
         service_name = tcp_info.get('name')
         service_product = tcp_info.get('product', '')
@@ -235,7 +148,71 @@ def run_single_nmap_scan(ip, port):
         logging.error(f"Nmap scan error for {ip}:{port}: {e}")
         return {'status': 'error', 'banner': str(e), 'name': None, 'version': None}
 
+# --- Dashboard & Owner Queries (Retained) ---
+
+def get_dashboard_stats(conn):
+    stats = {}
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    try:
+        logging.info("Fetching dashboard statistics...")
+        # ... SQL queries ...
+        cursor.execute("""
+            SELECT a.hostname, a.ip_address, v.cve, v.cvss_score, (ck.cve_id IS NOT NULL) as is_cisa_kev
+            FROM assets a JOIN vulnerabilities v ON a.asset_id = v.asset_id
+            LEFT JOIN cisa_kev ck ON v.cve = ck.cve_id
+            WHERE a.is_public = TRUE AND v.status = 'Open'
+            ORDER BY (ck.cve_id IS NOT NULL) DESC, v.cvss_score DESC LIMIT 5;
+        """)
+        stats['top_risks'] = cursor.fetchall()
+        cursor.execute("""
+            SELECT hostname, ip_address, vt_ip_score, vt_domain_score FROM assets
+            WHERE vt_ip_score > 0 OR vt_domain_score > 0 ORDER BY GREATEST(vt_ip_score, vt_domain_score) DESC LIMIT 5;
+        """)
+        stats['vt_threats'] = cursor.fetchall()
+        cursor.execute("""
+            SELECT a.owner, COUNT(v.vuln_id) as vuln_count FROM assets a JOIN vulnerabilities v ON a.asset_id = v.asset_id
+            WHERE v.status = 'Open' GROUP BY a.owner ORDER BY vuln_count DESC LIMIT 5;
+        """)
+        stats['owner_stats'] = cursor.fetchall()
+        cursor.execute("SELECT COUNT(*) as count FROM assets;")
+        stats['total_assets'] = cursor.fetchone()['count']
+        cursor.execute("SELECT COUNT(*) as count FROM vulnerabilities WHERE status='Open';")
+        stats['total_open_vulns'] = cursor.fetchone()['count']
+        logging.info("Dashboard statistics fetched successfully.")
+    except Exception as e:
+        logging.error(f"Error fetching dashboard stats: {e}")
+        raise e
+    finally: 
+        cursor.close()
+    return stats
+
+def get_assets_by_owner(conn, owner_name):
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    try:
+        logging.info(f"Fetching assets for owner: {owner_name}")
+        cursor.execute("""
+            SELECT a.asset_id, a.hostname, a.ip_address, a.environment, a.is_public,
+                COUNT(v.vuln_id) as open_vulns, MAX(v.cvss_score) as max_cvss
+            FROM assets a LEFT JOIN vulnerabilities v ON a.asset_id = v.asset_id AND v.status = 'Open'
+            WHERE a.owner = %s GROUP BY a.asset_id ORDER BY max_cvss DESC NULLS LAST, open_vulns DESC;
+        """, (owner_name,))
+        assets = cursor.fetchall()
+        logging.info(f"Found {len(assets)} assets for owner {owner_name}.")
+        return assets
+    except Exception as e:
+        logging.error(f"Error fetching assets by owner {owner_name}: {e}")
+        raise e
+    finally: cursor.close()
+
+
 # --- Routes ---
+
+# NEW: Route to serve the HTML file
+@app.route('/')
+def index():
+    """Serves the main HTML file when accessing the root URL."""
+    return send_file('ai_vuln_analyst.html')
+
 @app.route('/dashboard-stats', methods=['GET'])
 def dashboard_stats():
     conn = get_db_connection()
@@ -266,57 +243,85 @@ def owner_assets():
 def analyze_vulnerabilities():
     SYSTEM_PROMPT = """
     You are an expert-level cybersecurity risk analyst. Determine *true business criticality*.
-    Input JSON has: Asset Context, Vulnerability Data, CISA KEV status, Threat Intel, Network Exposure, Live Verification.
+    Input JSON has: Asset Context, Vulnerability Data, CISA KEV status, Threat Intel, Network Exposure, Live Verification, and **GreyNoise Classification**.
     Task: Return prioritized JSON array. 'priority' field must be sequential (1, 2, 3...).
     CRITICALITY RULES:
-    1. **CISA KEV & EXPOSED:** PRIORITY #1 if 'is_cisa_kev: True' AND NOT 'Not Reachable'.
-    2. **Internet Exposed Critical:** 'is_public: True' AND 'INTERNET EXPOSED' AND CVSS >= 9.0.
-    3. **Compromised Asset:** VirusTotal score >= 70 indicates active compromise.
-    4. **Verified internal risk:** 'Production' asset AND 'Internally exposed' AND 'Nmap Verification: open'.
-    5. **Mitigating Factors:** 'Not Reachable' OR 'Nmap Verification: closed' lowers risk.
+    1. **CISA KEV & EXPOSED:** PRIORITY #1 if 'is_cisa_kev: True' AND 'is_internet_exposed_via_fw: True'.
+    2. **Active Threat:** PRIORITY #2 if 'gn_classification: malicious' or VirusTotal score >= 70.
+    3. **Deprioritize Noise:** Decrease priority by 2 points if 'gn_classification: benign'.
+    4. **Verified Internal Risk:** 'Production' asset AND 'nmap_port_status: open'.
+    5. **Mitigating Factors:** 'nmap_port_status: closed' or low CVSS lowers risk.
+    You MUST return the 'asset_id' and 'vuln_port' from the input in your output JSON for functional linking.
     Provide concise 'justification' and actionable 'recommendation'.
     """
     conn = get_db_connection()
     if not conn: return jsonify({"error": "DB failed"}), 500
     try:
-        vulnerabilities = fetch_top_vulnerabilities(conn)
+        # Calls the view, which now includes the gn_classification field
+        vulnerabilities = fetch_correlated_risks(conn)
+        
         if not vulnerabilities: 
             logging.info("No vulnerabilities found for analysis.")
             return jsonify({"error": "No vulns found."}), 404
         
+        # Prepare the input data for the LLM
         augmented_data = []
+        ip_map = {}
+        
         for vuln in vulnerabilities:
             vuln_dict = dict(vuln)
-            vuln_dict['network_exposure'] = find_firewall_exposure(conn, vuln['ip_address'], vuln['vuln_port'])
-            vuln_dict['asset_id'] = vuln['asset_id']
-            vuln_dict['vuln_port'] = vuln['vuln_port'] 
-            vuln_dict['cvss_score'] = float(vuln['cvss_score'])
-            vuln_dict['vt_ip_score'] = int(vuln['vt_ip_score'] or 0)
-            vuln_dict['vt_domain_score'] = int(vuln['vt_domain_score'] or 0)
+            
+            # Determine network exposure based on the pre-calculated view field
+            if vuln_dict['is_internet_exposed_via_fw']:
+                vuln_dict['network_exposure'] = "INTERNET EXPOSED via Firewall Rule"
+            elif vuln_dict['is_public']:
+                vuln_dict['network_exposure'] = "Public IP (No explicit Internet Allow Rule found)"
+            else:
+                vuln_dict['network_exposure'] = "Internally Exposed"
+            
+            # Populate map and clean types for JSON 
+            ip_map[str(vuln_dict['asset_id'])] = vuln_dict['ip_address']
+            
+            # Clean and ensure required fields are present in the AI input
+            vuln_dict['asset_id'] = str(vuln_dict['asset_id'])
+            vuln_dict['vuln_port'] = int(vuln_dict['vuln_port'])
+            vuln_dict['cvss_score'] = float(vuln_dict['cvss_score'])
+            vuln_dict['vt_ip_score'] = int(vuln_dict['vt_ip_score'] or 0)
+            vuln_dict['vt_domain_score'] = int(vuln_dict['vt_domain_score'] or 0)
+            
+            # Ensure GreyNoise field is included in the AI's input
+            vuln_dict['gn_classification'] = vuln_dict.get('gn_classification', 'unknown') or 'unknown'
+            
             augmented_data.append(vuln_dict)
         
         analysis_result = call_gemini_api(SYSTEM_PROMPT, json.dumps(augmented_data))
         
-        # Inject scan parameters for the frontend 'Verify' button
+        # Use the asset_id and vuln_port returned by the AI for the final result
+        final_result = []
         for res_item in analysis_result:
-             for orig_item in augmented_data:
-                 if res_item['asset_hostname'] == orig_item['hostname'] and res_item['cve'] == orig_item['cve']:
-                     res_item['scan_params'] = {
-                        'asset_id': orig_item['asset_id'], 
-                        'ip': orig_item['ip_address'], 
-                        'port': orig_item['vuln_port']
-                    }
-                     break
-                     
+            asset_id_str = res_item.get('asset_id')
+            ip_address = ip_map.get(asset_id_str)
+            
+            if ip_address:
+                 # Re-inject scan_params using the IDs returned by the AI
+                 res_item['scan_params'] = {
+                    'asset_id': asset_id_str, 
+                    'ip': ip_address, 
+                    'port': res_item.get('vuln_port')
+                }
+                 final_result.append(res_item)
+            else:
+                 logging.warning(f"AI returned unknown asset_id: {asset_id_str}. Skipping result.")
+                 
         logging.info("Analysis complete. Returning results.")
-        return jsonify(analysis_result)
+        return jsonify(final_result)
     except Exception as e:
         logging.error(f"Error in /analyze endpoint: {e}")
         return jsonify({"error": str(e)}), 500
     finally:
         if conn: conn.close()
 
-# --- NEW ENDPOINT (Improved) ---
+# --- Nmap Scan Endpoint (No Change) ---
 @app.route('/scan-asset', methods=['POST'])
 def scan_asset():
     data = request.json
@@ -324,22 +329,18 @@ def scan_asset():
     ip_address = data.get('ip')
     port = data.get('port')
     
-    # Input validation
     if not all([asset_id, ip_address, port]):
         logging.error(f"Missing scan parameters: asset_id={asset_id}, ip={ip_address}, port={port}")
         return jsonify({'error': 'Missing required parameters'}), 400
 
     logging.info(f"Received request for on-demand scan: {ip_address}:{port}")
     
-    # 1. Run the actual scan
     scan_result = run_single_nmap_scan(ip_address, port)
 
-    # 2. Save result to database
     conn = get_db_connection()
     if conn:
         try:
             cursor = conn.cursor()
-            # FIX: Added service_name and service_version to the query
             query = """
                 INSERT INTO nmap_scan_results (
                     scan_id, asset_id, ip_address, port, protocol, 
@@ -354,15 +355,14 @@ def scan_asset():
                     service_version = EXCLUDED.service_version,
                     scan_timestamp = EXCLUDED.scan_timestamp;
             """
-            # FIX: Mapping the new fields from scan_result to the query
             cursor.execute(query, (
                 asset_id, 
                 ip_address, 
                 port, 
                 scan_result['status'], 
-                scan_result['name'], # <-- NEW: service_name
+                scan_result['name'],
                 scan_result['banner'], 
-                scan_result['version'], # <-- NEW: service_version
+                scan_result['version'],
                 datetime.now(timezone.utc)
             ))
             conn.commit()
@@ -374,9 +374,9 @@ def scan_asset():
         finally:
             conn.close()
 
-    # Return the clean result back to the frontend
     return jsonify({'status': scan_result['status'], 'banner': scan_result['banner']})
 
 if __name__ == '__main__':
     logging.info("Starting Flask application...")
-    app.run(host='127.0.0.1', port=5555, debug=True)
+    # FIX: Bind to all interfaces (0.0.0.0) so it's accessible via LAN IP
+    app.run(host='0.0.0.0', port=5555, debug=True)
