@@ -13,9 +13,11 @@ SELECT
     v.protocol,
     a.vt_ip_score,
     a.vt_domain_score,
+    a.gn_classification, -- Includes GreyNoise field (assuming schema is updated)
     
     -- (1) CISA KEV CORRELATION: Check if the CVE is known exploited
     CASE WHEN k.cve_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_cisa_kev,
+    k.kev_link, -- <-- NEW FIELD: Pulls the direct link for the frontend
     
     -- (2) LIVE NMAP STATUS: Status from the latest scan
     n.status AS nmap_port_status,
@@ -43,6 +45,6 @@ LEFT JOIN
 LEFT JOIN
     cisa_kev k ON v.cve = k.cve_id
 WHERE
-    v.status = 'Open' AND v.cvss_score >= 4.0 -- Filter out low-priority closed or trivial vulns
+    v.status = 'Open' AND v.cvss_score >= 4.0 
 ORDER BY 
     is_cisa_kev DESC, v.cvss_score DESC;

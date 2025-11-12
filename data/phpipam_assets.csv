@@ -1,51 +1,51 @@
 ip_address,hostname,environment,description,owner,os,is_public
-10.241.72.124,development-level-51.local,Development,Development Server,Data Science,Debian 11,False
-10.246.3.42,production-born-13.local,Production,Production Server,QA Team,Ubuntu 22.04,False
-15.4.54.139,qa-toward-4.local,QA,QA Server,QA Team,Ubuntu 22.04,True
-10.159.77.201,staging-particular-6.local,Staging,Staging Server,Data Science,Debian 11,False
-172.23.39.234,production-science-44.local,Production,Production Server,Engineering,Windows Server 2019,False
-171.82.103.68,production-but-58.local,Production,Production Server,Web Team,Debian 11,True
-192.168.20.232,development-Mr-71.local,Development,Development Server,Web Team,Windows Server 2019,False
-143.113.152.202,qa-church-45.local,QA,QA Server,Web Team,Windows Server 2019,True
-192.168.28.253,staging-laugh-56.local,Staging,Staging Server,Engineering,Debian 11,False
-206.165.74.171,production-environment-59.local,Production,Production Server,Data Science,RHEL 8,True
-200.74.190.146,staging-yeah-87.local,Staging,Staging Server,QA Team,Windows Server 2019,True
-49.173.135.165,qa-police-78.local,QA,QA Server,Finance Team,Debian 11,True
-10.185.63.123,production-west-36.local,Production,Production Server,Web Team,RHEL 8,False
-135.238.139.216,staging-sure-78.local,Staging,Staging Server,Engineering,RHEL 8,True
-192.168.11.125,development-trade-29.local,Development,Development Server,Finance Team,Ubuntu 22.04,False
-8.212.104.233,staging-reach-7.local,Staging,Staging Server,Engineering,Windows Server 2019,True
-204.8.156.242,qa-place-78.local,QA,QA Server,Data Science,Ubuntu 22.04,True
-210.141.1.147,qa-tough-75.local,QA,QA Server,QA Team,Debian 11,True
-192.168.185.217,staging-focus-56.local,Staging,Staging Server,Engineering,RHEL 8,False
-32.36.247.134,development-spend-91.local,Development,Development Server,Finance Team,Debian 11,True
-172.21.151.138,qa-black-8.local,QA,QA Server,Engineering,Debian 11,False
-10.32.150.141,qa-although-62.local,QA,QA Server,Finance Team,Windows Server 2019,False
-223.93.117.42,staging-executive-40.local,Staging,Staging Server,QA Team,Debian 11,True
-196.4.76.156,development-American-49.local,Development,Development Server,Web Team,RHEL 8,True
-172.121.246.94,qa-well-11.local,QA,QA Server,Web Team,RHEL 8,True
-170.227.11.39,qa-task-89.local,QA,QA Server,Engineering,Windows Server 2019,True
-172.28.214.32,development-mean-38.local,Development,Development Server,Engineering,Windows Server 2019,False
-10.9.2.196,production-ability-80.local,Production,Production Server,Finance Team,Windows Server 2019,False
-172.16.225.61,staging-our-27.local,Staging,Staging Server,Data Science,Windows Server 2019,False
-10.79.253.64,production-finally-13.local,Production,Production Server,QA Team,RHEL 8,False
-192.168.232.74,qa-top-70.local,QA,QA Server,Data Science,Windows Server 2019,False
-172.28.25.57,qa-identify-23.local,QA,QA Server,Data Science,Windows Server 2019,False
-10.128.173.110,qa-threat-65.local,QA,QA Server,Engineering,Ubuntu 22.04,False
-192.168.103.29,production-human-33.local,Production,Production Server,Web Team,RHEL 8,False
-10.12.99.185,staging-involve-64.local,Staging,Staging Server,Finance Team,Debian 11,False
-192.168.228.90,development-example-5.local,Development,Development Server,Engineering,RHEL 8,False
-192.168.9.126,production-information-34.local,Production,Production Server,Data Science,RHEL 8,False
-172.28.155.176,production-few-58.local,Production,Production Server,Web Team,RHEL 8,False
-167.246.11.187,production-none-3.local,Production,Production Server,QA Team,Ubuntu 22.04,True
-86.133.8.186,staging-risk-19.local,Staging,Staging Server,Finance Team,Ubuntu 22.04,True
-192.168.77.86,production-gas-48.local,Production,Production Server,Engineering,Windows Server 2019,False
-194.226.148.195,staging-prevent-33.local,Staging,Staging Server,Web Team,Ubuntu 22.04,True
-10.211.48.36,staging-try-18.local,Staging,Staging Server,Data Science,RHEL 8,False
-10.194.91.163,staging-different-32.local,Staging,Staging Server,QA Team,RHEL 8,False
-150.50.219.209,staging-those-30.local,Staging,Staging Server,Web Team,Ubuntu 22.04,True
-192.168.154.183,production-television-15.local,Production,Production Server,Data Science,Debian 11,False
-192.168.221.37,qa-work-35.local,QA,QA Server,QA Team,Windows Server 2019,False
-192.116.236.124,development-right-35.local,Development,Development Server,Engineering,Windows Server 2019,True
-172.23.160.112,staging-deep-45.local,Staging,Staging Server,Data Science,Debian 11,False
-172.16.246.81,qa-all-71.local,QA,QA Server,Web Team,Ubuntu 22.04,False
+172.27.91.215,qa-section-81.local,QA,QA Server,QA Team,Debian 11,False
+218.103.111.247,qa-draw-64.local,QA,QA Server,QA Team,Windows Server 2019,True
+172.28.72.197,production-provide-48.local,Production,Production Server,Web Team,Ubuntu 22.04,False
+10.194.221.198,development-after-91.local,Development,Development Server,QA Team,RHEL 8,False
+208.12.227.131,qa-building-20.local,QA,QA Server,Web Team,Debian 11,True
+172.29.224.167,qa-him-33.local,QA,QA Server,QA Team,RHEL 8,False
+172.16.181.103,qa-somebody-28.local,QA,QA Server,Engineering,Debian 11,False
+139.174.65.72,production-laugh-32.local,Production,Production Server,Finance Team,RHEL 8,True
+10.96.96.18,staging-experience-10.local,Staging,Staging Server,Data Science,Debian 11,False
+10.134.60.186,qa-want-66.local,QA,QA Server,QA Team,RHEL 8,False
+159.164.243.148,staging-very-77.local,Staging,Staging Server,QA Team,Ubuntu 22.04,True
+222.180.41.192,staging-wear-67.local,Staging,Staging Server,Data Science,Windows Server 2019,True
+151.13.209.84,qa-stay-22.local,QA,QA Server,Data Science,Debian 11,True
+96.37.22.62,development-service-7.local,Development,Development Server,Engineering,Debian 11,True
+10.182.88.189,production-strategy-61.local,Production,Production Server,Web Team,Ubuntu 22.04,False
+30.248.122.184,production-now-10.local,Production,Production Server,QA Team,Ubuntu 22.04,True
+192.168.207.89,qa-member-10.local,QA,QA Server,Finance Team,Ubuntu 22.04,False
+10.190.193.208,qa-produce-59.local,QA,QA Server,Data Science,Ubuntu 22.04,False
+172.25.49.158,development-identify-80.local,Development,Development Server,Finance Team,Windows Server 2019,False
+10.201.55.253,qa-worry-66.local,QA,QA Server,QA Team,Ubuntu 22.04,False
+192.168.1.227,development-official-26.local,Development,Development Server,QA Team,Debian 11,False
+10.120.117.184,staging-back-32.local,Staging,Staging Server,QA Team,RHEL 8,False
+10.163.18.45,qa-technology-56.local,QA,QA Server,Finance Team,RHEL 8,False
+10.188.206.34,staging-best-86.local,Staging,Staging Server,Engineering,Windows Server 2019,False
+10.105.228.184,development-lot-45.local,Development,Development Server,QA Team,Debian 11,False
+172.24.28.37,staging-physical-27.local,Staging,Staging Server,QA Team,Windows Server 2019,False
+10.125.86.63,development-writer-57.local,Development,Development Server,Web Team,Debian 11,False
+67.218.103.121,development-rise-11.local,Development,Development Server,Data Science,RHEL 8,True
+192.168.115.141,staging-candidate-52.local,Staging,Staging Server,Finance Team,Debian 11,False
+172.29.5.125,production-color-26.local,Production,Production Server,Engineering,Windows Server 2019,False
+192.168.227.190,development-fact-50.local,Development,Development Server,Data Science,RHEL 8,False
+187.130.244.228,staging-doctor-17.local,Staging,Staging Server,Engineering,Ubuntu 22.04,True
+172.23.240.124,production-notice-79.local,Production,Production Server,Finance Team,Debian 11,False
+62.168.14.135,development-nor-63.local,Development,Development Server,Data Science,RHEL 8,True
+10.26.102.211,staging-behavior-41.local,Staging,Staging Server,Engineering,RHEL 8,False
+172.30.159.189,staging-system-40.local,Staging,Staging Server,Data Science,Debian 11,False
+188.149.166.145,development-space-35.local,Development,Development Server,Engineering,Windows Server 2019,True
+192.168.113.183,qa-no-13.local,QA,QA Server,Data Science,RHEL 8,False
+10.223.39.235,staging-next-93.local,Staging,Staging Server,Finance Team,RHEL 8,False
+172.31.142.49,qa-election-1.local,QA,QA Server,Data Science,RHEL 8,False
+10.49.51.57,staging-fall-51.local,Staging,Staging Server,Web Team,Windows Server 2019,False
+197.116.82.33,staging-energy-30.local,Staging,Staging Server,Finance Team,Ubuntu 22.04,True
+192.168.171.218,qa-election-87.local,QA,QA Server,QA Team,Windows Server 2019,False
+173.248.30.141,staging-mouth-60.local,Staging,Staging Server,QA Team,Debian 11,True
+10.213.55.78,qa-finish-23.local,QA,QA Server,Web Team,Debian 11,False
+172.29.126.234,qa-develop-4.local,QA,QA Server,Engineering,Windows Server 2019,False
+192.168.190.90,production-alone-9.local,Production,Production Server,Engineering,RHEL 8,False
+192.168.114.69,qa-stock-40.local,QA,QA Server,Finance Team,Windows Server 2019,False
+192.168.95.97,staging-alone-74.local,Staging,Staging Server,Web Team,Debian 11,False
+172.22.237.74,qa-here-24.local,QA,QA Server,Data Science,Debian 11,False

@@ -96,7 +96,8 @@ CREATE TABLE cisa_kev (
     date_added DATE,
     short_description TEXT,
     required_action TEXT,
-    due_date DATE
+    due_date DATE,
+    kev_link TEXT 
 );
 -- No indexes needed besides PRIMARY KEY for this lookup table
 

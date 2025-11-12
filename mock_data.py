@@ -46,7 +46,7 @@ def generate_assets():
     return assets
 
 def generate_cisa_kev():
-    """Generates the mock CISA KEV catalog."""
+    """Generates the mock CISA KEV catalog, now including the link."""
     kev_data = []
     for cve in CISA_KEV_LIST:
         kev_data.append({
@@ -57,7 +57,9 @@ def generate_cisa_kev():
             "dateAdded": fake.date_between(start_date='-2y', end_date='today').isoformat(),
             "shortDescription": "Attackers are actively exploiting this vulnerability in the wild.",
             "requiredAction": "Apply updates per vendor instructions.",
-            "dueDate": fake.future_date(end_date='+30d').isoformat()
+            "dueDate": fake.future_date(end_date='+30d').isoformat(),
+            # --- NEW FIELD ADDED HERE ---
+            "kev_link": f"https://www.cisa.gov/known-exploited-vulnerabilities-catalog?search={cve}" 
         })
     return kev_data
 

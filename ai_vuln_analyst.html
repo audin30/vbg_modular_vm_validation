@@ -27,7 +27,6 @@
 
     <div id="canvas-container"></div>
 
-    <!-- Main Dashboard Layout -->
     <div class="h-screen p-6 flex flex-col gap-6 overflow-y-auto">
         <div class="flex justify-between items-center">
             <div>
@@ -48,9 +47,7 @@
             </div>
         </div>
 
-        <!-- 2x2 GRID LAYOUT -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow">
-            <!-- PANEL 1: Top Risks -->
             <div class="glass-panel rounded-2xl p-6 flex flex-col h-[300px] md:h-auto">
                 <h2 class="text-xl font-semibold mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>Top Public Risks
@@ -59,7 +56,6 @@
                     <table class="w-full text-sm text-left text-gray-300"><thead class="text-xs uppercase bg-white/5 text-gray-400"><tr><th class="px-3 py-2 rounded-tl-lg">Host</th><th class="px-3 py-2">CVE</th><th class="px-3 py-2 rounded-tr-lg text-right">CVSS</th></tr></thead><tbody id="top-risks-body" class="divide-y divide-white/5"><tr><td colspan="3" class="px-3 py-4 text-center text-gray-500">Loading...</td></tr></tbody></table>
                 </div>
             </div>
-            <!-- PANEL 2: VT Threats -->
             <div class="glass-panel rounded-2xl p-6 flex flex-col h-[300px] md:h-auto">
                 <h2 class="text-xl font-semibold mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016zM12 9v2m0 4h.01"/></svg>VirusTotal Threats
@@ -68,14 +64,12 @@
                     <table class="w-full text-sm text-left text-gray-300"><thead class="text-xs uppercase bg-white/5 text-gray-400"><tr><th class="px-3 py-2 rounded-tl-lg">Host</th><th class="px-3 py-2 text-right">IP Score</th><th class="px-3 py-2 rounded-tr-lg text-right">Domain Score</th></tr></thead><tbody id="vt-threats-body" class="divide-y divide-white/5"><tr><td colspan="3" class="px-3 py-4 text-center text-gray-500">Loading...</td></tr></tbody></table>
                 </div>
             </div>
-            <!-- PANEL 3: Owner Chart -->
             <div class="glass-panel rounded-2xl p-6 flex flex-col h-[300px] md:h-auto">
                 <h2 class="text-xl font-semibold mb-2 flex items-center justify-between">
                     <div class="flex items-center"><svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>Vulnerabilities by Owner</div><span class="text-xs text-gray-500 font-normal">(Click bar for details)</span>
                 </h2>
                 <div class="flex-grow relative"><canvas id="ownerChart" class="clickable-chart"></canvas></div>
             </div>
-            <!-- PANEL 4: AI Prompt -->
             <div class="glass-panel rounded-2xl p-8 flex flex-col justify-center items-center text-center relative overflow-hidden h-[300px] md:h-auto">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-80"></div>
                 <h2 class="text-2xl font-bold mb-4 text-white">Deep AI Analysis</h2>
@@ -91,7 +85,6 @@
         </div>
     </div>
 
-    <!-- Modals -->
     <div id="resultsModal" class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-md bg-black/50 transition-opacity">
         <div class="relative glass-panel rounded-2xl max-w-7xl w-[95%] max-h-[90vh] flex flex-col overflow-hidden">
             <div class="px-8 py-5 border-b border-white/10 flex justify-between items-center bg-black/40">
@@ -126,7 +119,7 @@
 
         let ownerChartInstance = null;
         function getVtColor(score) { if (score >= 70) return 'text-red-500 font-bold'; if (score >= 30) return 'text-orange-400'; if (score > 0) return 'text-yellow-300'; return 'text-gray-500'; }
-        window.onload = async function() { try { const res = await fetch('http://127.0.0.1:5555/dashboard-stats'); const data = await res.json(); if (data.error) throw new Error(data.error); document.getElementById('stat-total-assets').textContent = data.total_assets; document.getElementById('stat-total-vulns').textContent = data.total_open_vulns; const risksBody = document.getElementById('top-risks-body'); risksBody.innerHTML = ''; if (data.top_risks.length === 0) risksBody.innerHTML = '<tr><td colspan="3" class="px-3 py-4 text-center text-gray-500">No immediate public risks found.</td></tr>'; data.top_risks.forEach(r => { const cisaBadge = r.is_cisa_kev ? '<span class="cisa-badge">CISA KEV</span>' : ''; risksBody.innerHTML += `<tr class="hover:bg-white/5 transition"><td class="px-3 py-3 font-medium text-white truncate max-w-[120px]" title="${r.hostname}">${r.hostname}</td><td class="px-3 py-3 text-gray-400 flex items-center">${r.cve}${cisaBadge}</td><td class="px-3 py-3 text-right font-bold text-red-400">${r.cvss_score}</td></tr>`; }); const vtBody = document.getElementById('vt-threats-body'); vtBody.innerHTML = ''; if (data.vt_threats.length === 0) vtBody.innerHTML = '<tr><td colspan="3" class="px-3 py-4 text-center text-gray-500">No VirusTotal threats found.</td></tr>'; data.vt_threats.forEach(t => { vtBody.innerHTML += `<tr class="hover:bg-white/5 transition"><td class="px-3 py-3 font-medium text-white truncate max-w-[120px]" title="${t.hostname}">${t.hostname}</td><td class="px-3 py-3 text-right ${getVtColor(t.vt_ip_score)}">${t.vt_ip_score}</td><td class="px-3 py-3 text-right ${getVtColor(t.vt_domain_score)}">${t.vt_domain_score}</td></tr>`; }); const ctx = document.getElementById('ownerChart').getContext('2d'); ownerChartInstance = new Chart(ctx, { type: 'bar', data: { labels: data.owner_stats.map(s => s.owner), datasets: [{ label: 'Open Vulnerabilities', data: data.owner_stats.map(s => s.vuln_count), backgroundColor: 'rgba(99, 102, 241, 0.5)', borderColor: '#6366f1', borderWidth: 1, borderRadius: 5, hoverBackgroundColor: '#6366f1' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: { intersect: false } }, onClick: (e, elements) => { if (elements.length > 0) fetchOwnerDetails(ownerChartInstance.data.labels[elements[0].index]); }, onHover: (e, el) => { e.native.target.style.cursor = el[0] ? 'pointer' : 'default'; } } }); } catch (e) { console.error("Dashboard load failed:", e); } };
+        window.onload = async function() { try { const res = await fetch(window.location.origin + '/dashboard-stats'); const data = await res.json(); if (data.error) throw new Error(data.error); document.getElementById('stat-total-assets').textContent = data.total_assets; document.getElementById('stat-total-vulns').textContent = data.total_open_vulns; const risksBody = document.getElementById('top-risks-body'); risksBody.innerHTML = ''; if (data.top_risks.length === 0) risksBody.innerHTML = '<tr><td colspan="3" class="px-3 py-4 text-center text-gray-500">No immediate public risks found.</td></tr>'; data.top_risks.forEach(r => { const cisaBadge = r.is_cisa_kev ? '<span class="cisa-badge">CISA KEV</span>' : ''; risksBody.innerHTML += `<tr class="hover:bg-white/5 transition"><td class="px-3 py-3 font-medium text-white truncate max-w-[120px]" title="${r.hostname}">${r.hostname}</td><td class="px-3 py-3 text-gray-400 flex items-center">${r.cve}${cisaBadge}</td><td class="px-3 py-3 text-right font-bold text-red-400">${r.cvss_score}</td></tr>`; }); const vtBody = document.getElementById('vt-threats-body'); vtBody.innerHTML = ''; if (data.vt_threats.length === 0) vtBody.innerHTML = '<tr><td colspan="3" class="px-3 py-4 text-center text-gray-500">No VirusTotal threats found.</td></tr>'; data.vt_threats.forEach(t => { vtBody.innerHTML += `<tr class="hover:bg-white/5 transition"><td class="px-3 py-3 font-medium text-white truncate max-w-[120px]" title="${t.hostname}">${t.hostname}</td><td class="px-3 py-3 text-right ${getVtColor(t.vt_ip_score)}">${t.vt_ip_score}</td><td class="px-3 py-3 text-right ${getVtColor(t.vt_domain_score)}">${t.vt_domain_score}</td></tr>`; }); const ctx = document.getElementById('ownerChart').getContext('2d'); ownerChartInstance = new Chart(ctx, { type: 'bar', data: { labels: data.owner_stats.map(s => s.owner), datasets: [{ label: 'Open Vulnerabilities', data: data.owner_stats.map(s => s.vuln_count), backgroundColor: 'rgba(99, 102, 241, 0.5)', borderColor: '#6366f1', borderWidth: 1, borderRadius: 5, hoverBackgroundColor: '#6366f1' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: { intersect: false } }, onClick: (e, elements) => { if (elements.length > 0) fetchOwnerDetails(ownerChartInstance.data.labels[elements[0].index]); }, onHover: (e, el) => { e.native.target.style.cursor = el[0] ? 'pointer' : 'default'; } } }); } catch (e) { console.error("Dashboard load failed:", e); } };
 
         // --- NEW: Live Nmap Verification Logic ---
         async function verifyAsset(btn, assetId, ip, port) {
@@ -137,7 +130,7 @@
             btn.classList.add('bg-gray-600');
 
             try {
-                const res = await fetch('http://127.0.0.1:5555/scan-asset', {
+                const res = await fetch(window.location.origin + '/scan-asset', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ asset_id: assetId, ip: ip, port: port })
@@ -159,24 +152,98 @@
         }
 
         // --- Modal & Analysis Logic ---
-        async function fetchOwnerDetails(owner) { /* Unchanged, kept for brevity */ document.getElementById('ownerModalTitle').textContent = owner; const tbody = document.getElementById('ownerAssetsBody'); tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Loading assets...</td></tr>'; showModal('ownerModal'); try { const res = await fetch(`http://127.0.0.1:5555/owner-assets?owner=${encodeURIComponent(owner)}`); const assets = await res.json(); tbody.innerHTML = ''; if (assets.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No assets found.</td></tr>'; return; } assets.forEach(a => { tbody.innerHTML += `<tr class="hover:bg-white/5 transition border-b border-white/5"><td class="px-6 py-4 font-medium text-white">${a.hostname||'N/A'}</td><td class="px-6 py-4 text-gray-400">${a.ip_address}</td><td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs ${a.environment==='Production'?'bg-red-900/30 text-red-300':'bg-gray-800 text-gray-400'}">${a.environment}</span></td><td class="px-6 py-4 text-center">${a.is_public?'<span class="text-red-400">YES</span>':'<span class="text-gray-600">No</span>'}</td><td class="px-6 py-4 text-right font-bold ${a.open_vulns>0?'text-white':'text-gray-600'}">${a.open_vulns}</td><td class="px-6 py-4 text-right ${a.max_cvss>=9.0?'text-red-500 font-bold':a.max_cvss>=7.0?'text-orange-400':'text-gray-500'}">${a.max_cvss||'-'}</td></tr>`; }); } catch (e) { tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-red-400">Error: ${e.message}</td></tr>`; } }
+        async function fetchOwnerDetails(owner) { 
+            /* Unchanged, kept for brevity */ 
+            document.getElementById('ownerModalTitle').textContent = owner; 
+            const tbody = document.getElementById('ownerAssetsBody'); 
+            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Loading assets...</td></tr>'; 
+            showModal('ownerModal'); 
+            try { 
+                const res = await fetch(window.location.origin + `/owner-assets?owner=${encodeURIComponent(owner)}`); 
+                const assets = await res.json(); 
+                tbody.innerHTML = ''; 
+                if (assets.length === 0) { 
+                    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No assets found.</td></tr>'; 
+                    return; 
+                } 
+                assets.forEach(a => { 
+                    tbody.innerHTML += `<tr class="hover:bg-white/5 transition border-b border-white/5"><td class="px-6 py-4 font-medium text-white">${a.hostname||'N/A'}</td><td class="px-6 py-4 text-gray-400">${a.ip_address}</td><td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs ${a.environment==='Production'?'bg-red-900/30 text-red-300':'bg-gray-800 text-gray-400'}">${a.environment}</span></td><td class="px-6 py-4 text-center">${a.is_public?'<span class="text-red-400">YES</span>':'<span class="text-gray-600">No</span>'}</td><td class="px-6 py-4 text-right font-bold ${a.open_vulns>0?'text-white':'text-gray-600'}">${a.open_vulns}</td><td class="px-6 py-4 text-right ${a.max_cvss>=9.0?'text-red-500 font-bold':a.max_cvss>=7.0?'text-orange-400':'text-gray-500'}">${a.max_cvss||'-'}</td></tr>`; 
+                }); 
+            } catch (e) { 
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-red-400">Error: ${e.message}</td></tr>`; 
+            } 
+        }
         function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         
         async function runAnalysis() {
-             const btn = document.getElementById('analyzeBtn'); const spinner = document.getElementById('loadingSpinner'); const btnText = btn.querySelector('span'); const tbody = document.getElementById('resultsBody'); const errorMsg = document.getElementById('errorMessage');
-             btn.disabled = true; spinner.classList.remove('hidden'); btnText.textContent = 'ANALYZING...'; tbody.innerHTML = ''; errorMsg.classList.add('hidden');
+             const btn = document.getElementById('analyzeBtn'); 
+             const spinner = document.getElementById('loadingSpinner'); 
+             const btnText = btn.querySelector('span'); 
+             const tbody = document.getElementById('resultsBody'); 
+             const errorMsg = document.getElementById('errorMessage');
+             
+             btn.disabled = true; 
+             spinner.classList.remove('hidden'); 
+             btnText.textContent = 'ANALYZING...'; 
+             tbody.innerHTML = ''; 
+             errorMsg.classList.add('hidden');
+             
              try {
-                 const res = await fetch('http://127.0.0.1:5555/analyze'); const data = await res.json(); if (data.error) throw new Error(data.error);
+                 const res = await fetch(window.location.origin + '/analyze'); 
+                 const data = await res.json(); 
+                 
+                 if (data.error) throw new Error(data.error);
+                 
                  data.forEach(item => {
                      let bg = item.priority === 1 ? 'bg-red-500/10 border-l-2 border-red-500' : item.priority === 2 ? 'bg-orange-500/10 border-l-2 border-orange-500' : 'bg-transparent';
-                     // Inject Verify Button
-                     let verifyBtn = `<button onclick="verifyAsset(this, '${item.scan_params.asset_id}', '${item.scan_params.ip}', ${item.scan_params.port})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-md transition-colors flex items-center justify-center min-w-[80px]">VERIFY</button>`;
                      
-                     tbody.innerHTML += `<tr class="${bg} hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-bold ${item.priority===1?'text-red-400':item.priority===2?'text-orange-400':'text-gray-500'}">#${item.priority}</td><td class="px-6 py-4 font-medium text-white">${item.asset_hostname}</td><td class="px-6 py-4"><div class="flex flex-col"><span class="text-white">${item.cve}</span><span class="text-xs text-gray-500">CVSS ${item.cvss_score}</span></div></td><td class="px-6 py-4 text-sm text-gray-300">${item.justification}</td><td class="px-6 py-4 text-sm font-semibold text-blue-300">${item.recommendation}</td><td class="px-6 py-4 text-center">${verifyBtn}</td></tr>`;
+                     // --- NEW: CISA KEV Link Logic ---
+                     const cisaLinkIcon = item.kev_link ? 
+                        `<a href="${item.kev_link}" target="_blank" class="text-red-500 hover:text-red-400 ml-1" title="View CISA KEV Details">
+                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                         </a>` : '';
+                     // ---------------------------------
+
+                     // Safety check (already fixed in Python, but good practice)
+                     const hasScanParams = item.scan_params && item.scan_params.asset_id && item.scan_params.ip && item.scan_params.port;
+
+                     // Inject Verify Button (with safety checks for undefined)
+                     let verifyBtn = `<button 
+                         onclick="verifyAsset(this, 
+                             '${hasScanParams ? item.scan_params.asset_id : ''}', 
+                             '${hasScanParams ? item.scan_params.ip : ''}', 
+                             ${hasScanParams ? item.scan_params.port : '0'})" 
+                         class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-md transition-colors flex items-center justify-center min-w-[80px]"
+                         ${hasScanParams ? '' : 'disabled'}>
+                         ${hasScanParams ? 'VERIFY' : 'N/A'}
+                     </button>`;
+                     
+                     tbody.innerHTML += `<tr class="${bg} hover:bg-white/5 transition-colors">
+                        <td class="px-6 py-4 font-bold ${item.priority===1?'text-red-400':item.priority===2?'text-orange-400':'text-gray-500'}">#${item.priority}</td>
+                        <td class="px-6 py-4 font-medium text-white">${item.asset_hostname}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-white flex items-center">${item.cve}${cisaLinkIcon}</span>
+                                <span class="text-xs text-gray-500">CVSS ${item.cvss_score}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-300">${item.justification}</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-blue-300">${item.recommendation}</td>
+                        <td class="px-6 py-4 text-center">${verifyBtn}</td>
+                    </tr>`;
                  });
+
                  showModal('resultsModal');
-             } catch (e) { errorMsg.textContent = `Analysis Failed: ${e.message}`; errorMsg.classList.remove('hidden'); showModal('resultsModal'); } finally { btn.disabled = false; spinner.classList.add('hidden'); btnText.textContent = 'RUN FULL CORRELATION'; }
+             } catch (e) { 
+                 errorMsg.textContent = `Analysis Failed: ${e.message}`; 
+                 errorMsg.classList.remove('hidden'); 
+                 showModal('resultsModal'); 
+             } finally { 
+                 btn.disabled = false; 
+                 spinner.classList.add('hidden'); 
+                 btnText.textContent = 'RUN FULL CORRELATION'; 
+             }
         }
     </script>
 </body>
